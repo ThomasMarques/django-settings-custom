@@ -1,0 +1,5 @@
+django>=2
+pip
+pycrypto
+setuptools
+wheel

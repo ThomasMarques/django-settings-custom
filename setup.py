@@ -20,7 +20,7 @@ if os.path.isfile("README.md"):
 
 
 def get_version_info():
-    return '1.0.3'
+    return '1.0.4'
 
 
 setup(

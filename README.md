@@ -3,7 +3,9 @@ A Django interactive command for configuration file generation.
 
 ## Getting It
 
-```
+The project is on PyPI (https://pypi.org/project/django-settings-custom/)
+
+```commandLine
 pip install django-settings-custom
 ```
 
@@ -37,9 +39,10 @@ KEY = { DJANGO_SECRET_KEY }
 
 # A constant field
 [LDAP]
-LDAPGRP = 'ldaps://myldap'
+URL = 'ldaps://myldap'
 ```
 
+### Configure in command line
 Add `settings.py` file
 ```python
 SETTINGS_TEMPLATE_FILE = 'PATH_TO_YOUR_TEMPLATE_CONFIGURATION_FILE'
@@ -47,9 +50,15 @@ SETTINGS_FILE_PATH = 'TARGET_FOR_CONFIGURATION_FILE'
 ```
 
 Launch in command line
-```
+```CommandLine
 python manage.py generate_settings
 ```
+
+### Or all in command line
+```CommandLine
+python manage.py generate_settings path/to/template/settings.ini target/path/of/settings.ini
+```
+
 
 ## Results
 ![](results.gif)
@@ -89,16 +98,27 @@ PASSWORD = JbAwLj5Zwz8lMrvcUZq5sP/v6eaUFY5E7U8Fmg63vxI=
 
 # A constant field
 [LDAP]
-LDAPGRP = 'ldaps://monldap'
+URL = 'ldaps://monldap'
 
 [DJANGO]
 KEY = w)r13ne4=id9_8xdojir)3)%%5m3r$co#jwj_)4d*_%%!0+f#sro
 ```
 
+And to decrypt values in your code (in settings.py for example), you may use `django_settings_custom.encryption.decrypt` :
+```python
+import configparser
+from django_settings_custom import encryption
+
+config = configparser.ConfigParser()
+config.read(SETTINGS_FILE_PATH)
+database_password = encryption.decrypt(config.get('DATABASE_CREDENTIALS', 'PASSWORD'))
+```
+To decrypt values, the function uses the django SECRET_KEY (must be set before).
+
 ## Customization
 
-### Don't use Django settings
-If you want add variables to your Django settings file, you can inherit `generate_settings.Command` to specify command options :
+### If you don't want to use Django settings
+If you don't want to add specific variables to your Django settings file, you can inherit `generate_settings.Command` to specify command options :
 ```python
 from django_settings_custom.management.commands import generate_settings
 

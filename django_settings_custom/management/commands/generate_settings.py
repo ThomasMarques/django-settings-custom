@@ -14,8 +14,26 @@ class Command(BaseCommand):
     """
     A Django interactive command for configuration file generation.
     """
+    help = 'A Django interactive command for configuration file generation.'
+    usage = 'python manage.py generate_settings path/to/template/settings.ini target/path/of/settings.ini'
+
     settings_template_file = settings.SETTINGS_TEMPLATE_FILE
     settings_file_path = settings.SETTINGS_FILE_PATH
+
+    def add_arguments(self, parser):
+        parser.usage = self.usage
+        parser.add_argument(
+            'settings_template_file',
+            nargs='?',
+            type=str,
+            default=None,
+            help="Path to the settings template file.")
+        parser.add_argument(
+            'settings_file_path',
+            nargs='?',
+            type=str,
+            default=None,
+            help="Target path for the settings file.")
 
     @staticmethod
     def get_value(section, key, value_type, secret_key):
@@ -41,19 +59,28 @@ class Command(BaseCommand):
         return value
 
     def handle(self, *args, **options):
-        assert self.settings_template_file and os.path.exists(self.settings_template_file)
-        assert self.settings_file_path
+        settings_template_file = options['settings_template_file']
+        settings_file_path = options['settings_file_path']
+        if not settings_template_file and not settings_file_path:
+            settings_template_file = self.settings_template_file
+            settings_file_path = self.settings_file_path
+        if not settings_template_file:
+            raise CommandError('Parameter settings_template_file undefined.\nUsage: %s' % self.usage)
+        if not settings_file_path:
+            raise CommandError('Parameter settings_file_path undefined.\nUsage: %s' % self.usage)
+        if not os.path.exists(settings_template_file):
+            raise CommandError('The settings template file doesn\'t exists.')
 
         self.stdout.write('** Configuration file generation: **')
-        if os.path.exists(self.settings_file_path):
+        if os.path.exists(settings_file_path):
             override = input('A configuration file already exists at %s. Would you override it ? (y/N) : ' %
-                             self.settings_file_path)
+                             settings_file_path)
             if override.upper() != 'Y':
                 raise CommandError('Generation cancelled.')
 
         config = configparser.ConfigParser()
         config.optionxform = str
-        config.read(self.settings_template_file)
+        config.read(settings_template_file)
 
         generate_secret_key = input('Do you want to generate the secret key for Django ? (Y/n) : ')
         if generate_secret_key.upper() == 'N':
@@ -73,8 +100,8 @@ class Command(BaseCommand):
                 if match_groups:
                     value_type = match_groups.group(1).strip().upper()
                     config.set(section, key, self.get_value(section, key, value_type, secret_key))
-        self.stdout.write('\nWriting file at %s:' % self.settings_file_path)
-        os.makedirs(os.path.dirname(self.settings_file_path), exist_ok=True)
-        with open(self.settings_file_path, 'w') as config_file:
+        self.stdout.write('\nWriting file at %s:' % settings_file_path)
+        os.makedirs(os.path.dirname(settings_file_path), exist_ok=True)
+        with open(settings_file_path, 'w') as config_file:
             config.write(config_file)
         self.stdout.write(self.style.SUCCESS('Configuration file successfully generated !'))

@@ -6,15 +6,21 @@ API Documentation
 Command
 -------
 
-Here the documentation corresponding to encryption.py
+Documentation corresponding to Command class of generate_settings
 
 .. autoclass:: django_settings_custom.management.commands.generate_settings.Command
-   :members:
+
+    .. automethod:: add_arguments
+
+    .. automethod:: get_value
+
+    .. automethod:: handle
+
 
 Encryption
 ----------
 
-Here the documentation corresponding to encryption.py
+Documentation corresponding to encryption.py
 
 .. automodule:: django_settings_custom.encryption
-   :members:
+    :members:

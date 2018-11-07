@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
-import configparser
+try:
+    from configparser import ConfigParser
+except ImportError:  # Python 2 compatibility
+    from ConfigParser import ConfigParser
 import os
 import re
 
@@ -96,7 +99,7 @@ class Command(BaseCommand):
             if override.upper() != 'Y':
                 raise CommandError('Generation cancelled.')
 
-        config = configparser.ConfigParser()
+        config = ConfigParser()
         config.optionxform = str
         config.read(settings_template_file)
 

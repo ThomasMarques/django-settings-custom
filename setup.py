@@ -20,7 +20,8 @@ if os.path.isfile("README.md"):
 
 
 def get_version_info():
-    return '1.0.4'
+    from version import __version__
+    return __version__
 
 
 setup(

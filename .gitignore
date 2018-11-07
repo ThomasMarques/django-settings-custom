@@ -64,3 +64,8 @@ ipython_config.py
 
 # Environments
 .idea/
+
+# Sphinx documentation
+_build
+_static/
+_templates/

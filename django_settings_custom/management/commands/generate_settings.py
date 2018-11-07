@@ -13,14 +13,25 @@ from django_settings_custom import encryption
 class Command(BaseCommand):
     """
     A Django interactive command for configuration file generation.
+
+    Example:
+        python manage.py generate_settings path/to/template/settings.ini target/path/of/settings.ini'
+
+    Attributes:
+        settings_template_file (str): Path to the settings template file.
+        settings_file_path (str): Target path for the created settings file.
     """
     help = 'A Django interactive command for configuration file generation.'
     usage = 'python manage.py generate_settings path/to/template/settings.ini target/path/of/settings.ini'
 
-    settings_template_file = settings.SETTINGS_TEMPLATE_FILE
-    settings_file_path = settings.SETTINGS_FILE_PATH
+    settings_template_file = settings.SETTINGS_TEMPLATE_FILE if hasattr(settings, 'SETTINGS_TEMPLATE_FILE') else None
+    settings_file_path = settings.SETTINGS_FILE_PATH if hasattr(settings, 'SETTINGS_FILE_PATH') else None
 
     def add_arguments(self, parser):
+        """
+        Add custom arguments to the command.
+        See python manage.py generate_settings --help.
+        """
         parser.usage = self.usage
         parser.add_argument(
             'settings_template_file',
@@ -39,11 +50,15 @@ class Command(BaseCommand):
     def get_value(section, key, value_type, secret_key):
         """
         Get a value for the [section] key passed as parameter.
-        :param section: Section in the configuration file.
-        :param key: Key in the configuration file.
-        :param value_type: Value type read in template.
-        :param secret_key: Django secret key
-        :return: Value for the [section] key
+
+        Args:
+            section (str): Section in the configuration file.
+            key (str): Key in the configuration file.
+            value_type (str): Value type read in template, must be "DJANGO_SECRET_KEY", "USER_VALUE" or "ENCRYPTED_USER_VALUE".
+            secret_key: Django secret key
+
+        Returns:
+            int or str: Value for the [section] key
         """
         value = None
         if value_type == 'DJANGO_SECRET_KEY':
@@ -59,6 +74,9 @@ class Command(BaseCommand):
         return value
 
     def handle(self, *args, **options):
+        """
+        Command core.
+        """
         settings_template_file = options['settings_template_file']
         settings_file_path = options['settings_file_path']
         if not settings_template_file and not settings_file_path:

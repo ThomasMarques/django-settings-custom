@@ -3,3 +3,8 @@ pip
 pycrypto
 setuptools
 wheel
+
+# for docs
+pypandoc
+sphinx
+sphinx_rtd_theme

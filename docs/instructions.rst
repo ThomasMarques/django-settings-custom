@@ -1,6 +1,8 @@
 django-settings-custom
 ======================
 
+|Documentation Status|
+
 A Django interactive command for configuration file generation.
 
 Getting It
@@ -201,3 +203,5 @@ Or a little more complex example :
                     raise CommandError('This field needs an int.')
             return value
 
+.. |Documentation Status| image:: https://readthedocs.org/projects/django-settings-custom/badge/?version=latest
+   :target: https://django-settings-custom.readthedocs.io/en/latest/?badge=latest

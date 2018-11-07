@@ -1,5 +1,6 @@
 # django-settings-custom
 [![Documentation Status](https://readthedocs.org/projects/django-settings-custom/badge/?version=latest)](https://django-settings-custom.readthedocs.io/en/latest/?badge=latest)
+
 A Django interactive command for configuration file generation.
 
 ## Getting It

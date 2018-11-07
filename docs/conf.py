@@ -16,12 +16,12 @@ import datetime
 import os
 import sys
 
-from importlib.machinery import SourceFileLoader
-
 django_settings_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 sys.path.insert(0, os.path.abspath('.'))
 sys.path.insert(1, django_settings_root)
+
+import version as app_version
 
 from django.conf import settings
 settings.configure()
@@ -33,14 +33,10 @@ project = 'django-settings-custom'
 copyright = '%s, Thomas Marques' % datetime.date.today().year
 author = 'Thomas Marques'
 
-django_settings_custom_version = SourceFileLoader(
-    'django_settings_custom.version',
-    os.path.join(django_settings_root, 'version.py')
-).load_module()
 # The short X.Y version
-version = '.'.join(django_settings_custom_version.__version__.split('.')[:2])
+version = '.'.join(app_version.__version__.split('.')[:2])
 # The full version, including alpha/beta/rc tags
-release = django_settings_custom_version.__version__
+release = app_version.__version__
 
 
 # -- General configuration ---------------------------------------------------

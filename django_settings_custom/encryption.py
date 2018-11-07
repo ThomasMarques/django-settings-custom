@@ -27,7 +27,7 @@ def _compute_key(secret_key=None):
     """
     if secret_key is None:
         secret_key = settings.SECRET_KEY
-    return SHA256.new(bytes(secret_key, 'utf-8')).digest()
+    return SHA256.new(secret_key.encode()).digest()
 
 
 def encrypt(source, secret_key=None):
@@ -44,7 +44,7 @@ def encrypt(source, secret_key=None):
     If the secret_key is not provided, it uses Django settings.SECRET_KEY.
     """
     if isinstance(source, str):
-        source = bytes(source, 'utf-8')
+        source = source.encode()
     key = _compute_key(secret_key)
     iv = Random.new().read(AES.block_size)
     cipher = AES.new(key, AES.MODE_CBC, iv)

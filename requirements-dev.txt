@@ -2,3 +2,9 @@
 
 pytest
 pytest-cov
+coveralls
+
+# for docs
+pypandoc
+sphinx
+sphinx_rtd_theme

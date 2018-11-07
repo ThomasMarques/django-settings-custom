@@ -11,8 +11,10 @@ env:
   - DJANGO_VERSION=2.1
 # command to install dependencies
 install:
-  - pip install -q Django==$DJANGO_VERSION
+  - pip install Django==$DJANGO_VERSION
   - pip install -r requirements-dev.txt
 # command to run tests
 script:
   - pytest --cov . --cov-report xml --junitxml results.xml
+after_success:
+  - coveralls

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
+import yaml
 
 try:  # for pip >= 10
     from pip._internal.req import parse_requirements
@@ -24,6 +25,33 @@ def get_version_info():
     return __version__
 
 
+with open('.travis.yml') as travis_file:
+    compatibility_information = yaml.load(travis_file)
+
+classifiers = [
+    'Development Status :: 5 - Production/Stable',
+    'Environment :: Web Environment',
+    'Framework :: Django',
+]
+for django_version in compatibility_information['env']:
+    classifiers.append('Framework :: Django :: %s' % django_version.split('=')[1])
+classifiers.extend([
+    'Intended Audience :: Developers',
+    'License :: OSI Approved :: MIT License',
+    'Operating System :: OS Independent',
+    'Programming Language :: Python'
+])
+python_versions = set()
+for python_version in compatibility_information['python']:
+    python_versions.add(python_version[:1])
+    python_versions.add(python_version)
+classifiers.extend(sorted(['Programming Language :: Python :: %s' % v for v in python_versions]))
+classifiers.extend([
+    'Programming Language :: Python :: Implementation :: CPython',
+    'Programming Language :: Python :: Implementation :: PyPy',
+    'Topic :: Utilities',
+])
+
 setup(
     name='django-settings-custom',
     version=get_version_info(),
@@ -39,26 +67,5 @@ setup(
     include_package_data=True,
     install_requires=requirements,
     extras_require={'test': requirements_test},
-    classifiers=[
-        'Development Status :: 5 - Production/Stable',
-        'Environment :: Web Environment',
-        'Framework :: Django',
-        'Framework :: Django :: 1.11',
-        'Framework :: Django :: 2.0',
-        'Framework :: Django :: 2.1',
-        'Intended Audience :: Developers',
-        'License :: OSI Approved :: MIT License',
-        'Operating System :: OS Independent',
-        'Programming Language :: Python',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.4',
-        'Programming Language :: Python :: 3.5',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: Implementation :: CPython',
-        'Programming Language :: Python :: Implementation :: PyPy',
-        'Topic :: Utilities',
-    ]
+    classifiers=classifiers
 )

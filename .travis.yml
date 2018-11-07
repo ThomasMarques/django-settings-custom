@@ -5,8 +5,13 @@ python:
   - "3.5"
   - "3.6"
   - "3.7"
+env:
+  - DJANGO_VERSION=1.11
+  - DJANGO_VERSION=2.0
+  - DJANGO_VERSION=2.1
 # command to install dependencies
 install:
+  - pip install -q Django==$DJANGO_VERSION
   - pip install -r requirements-dev.txt
 # command to run tests
 script:

@@ -1,6 +1,7 @@
 django
 pip
 pycrypto
+PyYAML
 setuptools
 wheel
 

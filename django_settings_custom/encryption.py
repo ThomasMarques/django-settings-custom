@@ -51,7 +51,7 @@ def encrypt(source, secret_key=None):
     cipher = AES.new(key, AES.MODE_CBC, iv)
     padding = AES.block_size - len(source) % AES.block_size
     source += bytearray([padding]) * padding
-    data = iv + cipher.encrypt(source)
+    data = iv + cipher.encrypt(source.decode())
     return base64.b64encode(data).decode('latin-1')
 
 

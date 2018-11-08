@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
-try:
-    from configparser import ConfigParser
-except ImportError:  # Python 2 compatibility
-    from ConfigParser import ConfigParser
 import os
 import re
+
+from six.moves.configparser import ConfigParser
 
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
@@ -57,7 +55,8 @@ class Command(BaseCommand):
         Args:
             section (str): Section in the configuration file.
             key (str): Key in the configuration file.
-            value_type (str): Value type read in template, must be "DJANGO_SECRET_KEY", "USER_VALUE" or "ENCRYPTED_USER_VALUE".
+            value_type (str): Value type read in template,
+                must be "DJANGO_SECRET_KEY", "USER_VALUE" or "ENCRYPTED_USER_VALUE".
             secret_key: Django secret key
 
         Returns:

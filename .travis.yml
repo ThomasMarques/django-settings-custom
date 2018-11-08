@@ -18,6 +18,10 @@ matrix:
     env: DJANGO_VERSION=2.1
   - python: "3.4"
     env: DJANGO_VERSION=2.1
+  include:
+  - python: "3.7"
+    dist: xenial
+    sudo: required
 # command to install dependencies
 install:
   - pip install Django==$DJANGO_VERSION

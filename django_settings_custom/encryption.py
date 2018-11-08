@@ -5,6 +5,7 @@
 """
 
 import base64
+import six
 
 from Crypto.Cipher import AES
 from Crypto.Hash import SHA256
@@ -27,7 +28,7 @@ def _compute_key(secret_key=None):
     """
     if secret_key is None:
         secret_key = settings.SECRET_KEY
-    return SHA256.new(secret_key.encode()).digest()
+    return SHA256.new(six.b(secret_key)).digest()
 
 
 def encrypt(source, secret_key=None):
@@ -43,8 +44,8 @@ def encrypt(source, secret_key=None):
 
     If the secret_key is not provided, it uses Django settings.SECRET_KEY.
     """
-    if isinstance(source, str):
-        source = source.encode()
+    if isinstance(source, six.string_types):
+        source = six.b(source)
     key = _compute_key(secret_key)
     iv = Random.new().read(AES.block_size)
     cipher = AES.new(key, AES.MODE_CBC, iv)

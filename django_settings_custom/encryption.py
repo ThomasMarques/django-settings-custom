@@ -74,8 +74,7 @@ def decrypt(source, secret_key=None):
     cipher = AES.new(key, AES.MODE_CBC, iv)
     data = cipher.decrypt(source[AES.block_size:])
     padding = data[-1]
-    if not isinstance(data, six.string_types):
-        data = data.decode("utf-8")
+    data = data.decode("utf-8")
     if data[-padding:] != (bytearray([padding]) * padding).decode("utf-8"):
         raise ValueError('Error in decryption.')
     return data[:-padding]

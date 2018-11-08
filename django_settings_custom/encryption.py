@@ -44,13 +44,13 @@ def encrypt(source, secret_key=None):
 
     If the secret_key is not provided, it uses Django settings.SECRET_KEY.
     """
-    if isinstance(source, six.string_types):
-        source = six.b(source)
+    if isinstance(source, str):
+        source = source.encode()
     key = _compute_key(secret_key)
     iv = Random.new().read(AES.block_size)
     cipher = AES.new(key, AES.MODE_CBC, iv)
     padding = AES.block_size - len(source) % AES.block_size
-    source += bytes([padding]) * padding
+    source += bytearray([padding]) * padding
     data = iv + cipher.encrypt(source)
     return base64.b64encode(data).decode('latin-1')
 
@@ -74,7 +74,7 @@ def decrypt(source, secret_key=None):
     cipher = AES.new(key, AES.MODE_CBC, iv)
     data = cipher.decrypt(source[AES.block_size:])
     padding = data[-1]
-    if data[-padding:] != bytes([padding]) * padding:
+    if data[-padding:] != bytearray([padding]) * padding:
         raise ValueError('Error in decryption.')
     return data[:-padding].decode("utf-8")
 

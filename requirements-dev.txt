@@ -8,3 +8,7 @@ coveralls
 pypandoc
 sphinx
 sphinx_rtd_theme
+
+# for code formatting
+black
+isort

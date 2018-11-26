@@ -1,7 +1,8 @@
 django-settings-custom
 ======================
 
-|Documentation Status|
+|License: MIT| |Build Status| |Coverage Status| |PyPI version| |Versions
+supported| |Supports Wheel format| |Documentation Status|
 
 A Django interactive command for configuration file generation.
 
@@ -203,5 +204,17 @@ Or a little more complex example :
                     raise CommandError('This field needs an int.')
             return value
 
+.. |License: MIT| image:: https://img.shields.io/badge/License-MIT-yellow.svg
+   :target: https://opensource.org/licenses/MIT
+.. |Build Status| image:: https://travis-ci.org/ThomasMarques/django-settings-custom.svg?branch=master
+   :target: https://travis-ci.org/ThomasMarques/django-settings-custom
+.. |Coverage Status| image:: https://coveralls.io/repos/github/ThomasMarques/django-settings-custom/badge.svg
+   :target: https://coveralls.io/github/ThomasMarques/django-settings-custom
+.. |PyPI version| image:: https://img.shields.io/pypi/v/django-settings-custom.svg
+   :target: https://pypi.org/project/django-settings-custom
+.. |Versions supported| image:: https://img.shields.io/pypi/pyversions/django-custom-settings.svg
+   :target: https://pypi.org/project/django-settings-custom
+.. |Supports Wheel format| image:: https://img.shields.io/pypi/wheel/django-settings-custom.svg
+   :target: https://pypi.org/project/django-settings-custom
 .. |Documentation Status| image:: https://readthedocs.org/projects/django-settings-custom/badge/?version=latest
    :target: https://django-settings-custom.readthedocs.io/en/latest/?badge=latest

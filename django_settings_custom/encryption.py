@@ -5,11 +5,11 @@
 """
 
 import base64
-import six
 
+import six
+from Crypto import Random
 from Crypto.Cipher import AES
 from Crypto.Hash import SHA256
-from Crypto import Random
 
 from django.conf import settings
 
@@ -52,7 +52,7 @@ def encrypt(source, secret_key=None):
     padding = AES.block_size - len(source) % AES.block_size
     source += bytearray([padding]) * padding
     data = iv + cipher.encrypt(source.decode())
-    return base64.b64encode(data).decode('latin-1')
+    return base64.b64encode(data).decode("latin-1")
 
 
 def decrypt(source, secret_key=None):
@@ -69,11 +69,11 @@ def decrypt(source, secret_key=None):
     If the secret_key is not provided, it uses Django settings.SECRET_KEY.
     """
     key = _compute_key(secret_key)
-    source = base64.b64decode(source.encode('latin-1'))
-    iv = source[:AES.block_size]
+    source = base64.b64decode(source.encode("latin-1"))
+    iv = source[: AES.block_size]
     cipher = AES.new(key, AES.MODE_CBC, iv)
-    data = cipher.decrypt(source[AES.block_size:]).decode("utf-8")
+    data = cipher.decrypt(source[AES.block_size :]).decode("utf-8")
     padding = ord(data[-1])
     if data[-padding:] != (bytearray([padding]) * padding).decode("utf-8"):
-        raise ValueError('Error in decryption.')
+        raise ValueError("Error in decryption.")
     return data[:-padding]

@@ -34,6 +34,11 @@ class Command(BaseCommand):
     settings_file_path = (
         settings.SETTINGS_FILE_PATH if hasattr(settings, "SETTINGS_FILE_PATH") else None
     )
+    force_secret_key = (
+        settings.SETTINGS_FILE_PATH
+        if hasattr(settings, "SETTINGS_FORCE_SECRET_KEY")
+        else False
+    )
 
     def add_arguments(self, parser):
         """
@@ -45,15 +50,21 @@ class Command(BaseCommand):
             "settings_template_file",
             nargs="?",
             type=str,
-            default=None,
+            default=self.settings_template_file,
             help="Path to the settings template file.",
         )
         parser.add_argument(
             "settings_file_path",
             nargs="?",
             type=str,
-            default=None,
+            default=self.settings_file_path,
             help="Target path for the settings file.",
+        )
+        parser.add_argument(
+            "--force-secretkey",
+            action="store_true",
+            dest="force_secretkey",
+            help="Generate SECRET_KEY without asking.",
         )
 
     @staticmethod
@@ -90,9 +101,7 @@ class Command(BaseCommand):
         """
         settings_template_file = options["settings_template_file"]
         settings_file_path = options["settings_file_path"]
-        if not settings_template_file and not settings_file_path:
-            settings_template_file = self.settings_template_file
-            settings_file_path = self.settings_file_path
+        force_secret_key = options.get("force_secretkey", self.force_secret_key)
         if not settings_template_file:
             raise CommandError(
                 "Parameter settings_template_file undefined.\nUsage: %s" % self.usage
@@ -108,8 +117,7 @@ class Command(BaseCommand):
         if os.path.exists(settings_file_path):
             override = input(
                 "A configuration file already exists at %s. "
-                "Would you override it ? (y/N) : "
-                % settings_file_path
+                "Would you override it ? (y/N) : " % settings_file_path
             )
             if override.upper() != "Y":
                 raise CommandError("Generation cancelled.")
@@ -118,10 +126,13 @@ class Command(BaseCommand):
         config.optionxform = str
         config.read(settings_template_file)
 
-        generate_secret_key = input(
-            "Do you want to generate the secret key for Django ? (Y/n) : "
-        )
-        if generate_secret_key.upper() == "N":
+        input_secret_key = False
+        if not force_secret_key:
+            generate_secret_key = input(
+                "Do you want to generate the secret key for Django ? (Y/n) : "
+            )
+            input_secret_key = generate_secret_key.upper() == "N"
+        if input_secret_key:
             secret_key = input("Enter your secret key : ")
             if not secret_key:
                 raise CommandError(
@@ -130,19 +141,14 @@ class Command(BaseCommand):
         else:
             secret_key = get_random_secret_key()
             self.stdout.write("Django secret key generated !")
-        secret_key = secret_key.replace("%", "%%")
+        secret_key = secret_key.replace("%", "0")
 
-        enter_message_printed = False
+        self.stdout.write("\n** Filling values for configuration file content **")
         variable_regex = re.compile(r" *{(.+)} *")
         for section, values in config.items():
             for key, value in values.items():
                 match_groups = variable_regex.match(value)
                 if match_groups:
-                    if not enter_message_printed:
-                        self.stdout.write(
-                            "\n** Enter values for configuration file content **"
-                        )
-                        enter_message_printed = True
                     value_type = match_groups.group(1).strip().upper()
                     config.set(
                         section,

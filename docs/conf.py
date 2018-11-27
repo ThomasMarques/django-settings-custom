@@ -24,6 +24,7 @@ sys.path.insert(1, django_settings_root)
 import version as app_version
 
 from django.conf import settings
+
 settings.configure()
 
 

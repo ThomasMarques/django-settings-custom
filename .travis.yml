@@ -33,7 +33,7 @@ matrix:
 # command to install dependencies
 install:
   - pip install Django==$DJANGO_VERSION
-  - pip install -r requirements-dev.txt
+  - pip install -r requirements/test.txt
 # command to run tests
 script:
   - pytest --cov . --cov-report xml --junitxml results.xml

@@ -177,3 +177,6 @@ class Command(generate_settings.Command):
                 raise CommandError('This field needs an int.')
         return value
 ```
+
+## [Documentation](https://django-settings-custom.readthedocs.io/en/latest/?badge=latest)
+

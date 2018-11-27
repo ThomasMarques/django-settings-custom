@@ -13,16 +13,25 @@ base_path = os.path.dirname(os.path.abspath(__file__))
 requirements = [
     str(ir.req)
     for ir in parse_requirements(
-        os.path.join(base_path, "requirements.txt"), session=False
+        os.path.join(base_path, "requirements", "base.txt"), session=False
     )
 ]
 requirements_test = [
     str(ir.req)
     for ir in parse_requirements(
-        os.path.join(base_path, "requirements-dev.txt"), session=False
+        os.path.join(base_path, "requirements", "test.txt"), session=False
     )
 ]
-extras_require = {"test": [r for r in requirements_test if r not in requirements]}
+requirements_dev = [
+    str(ir.req)
+    for ir in parse_requirements(
+        os.path.join(base_path, "requirements", "dev.txt"), session=False
+    )
+]
+extras_require = {
+    "test": [r for r in requirements_test if r not in requirements],
+    "dev": [r for r in requirements_dev if r not in requirements],
+}
 
 long_description = """Provide a Django interactive command for configuration file generation.
   See the project page for more information:

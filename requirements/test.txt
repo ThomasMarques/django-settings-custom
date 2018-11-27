@@ -1,4 +1,4 @@
--r ./requirements.txt
+-r ./base.txt
 
 pytest
 pytest-cov
@@ -8,7 +8,3 @@ coveralls
 pypandoc
 sphinx
 sphinx_rtd_theme
-
-# for code formatting
-black
-isort

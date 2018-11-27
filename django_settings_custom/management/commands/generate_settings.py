@@ -21,6 +21,7 @@ class Command(BaseCommand):
     Attributes:
         settings_template_file (str): Path to the settings template file.
         settings_file_path (str): Target path for the created settings file.
+        force_secret_key (bool): Generate SECRET_KEY without asking ?
     """
 
     help = "A Django interactive command for configuration file generation."

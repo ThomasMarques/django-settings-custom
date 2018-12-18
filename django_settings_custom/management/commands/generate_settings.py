@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import getpass
 import os
 import re
 
@@ -88,12 +89,13 @@ class Command(BaseCommand):
             value = secret_key
         elif "USER_VALUE" in value_type:
             encrypt = value_type == "ENCRYPTED_USER_VALUE"
-            encrypt_message = ""
             if encrypt:
-                encrypt_message = "(will be encrypted) "
-            value = input("Value for [%s] %s %s: " % (section, key, encrypt_message))
-            if encrypt:
+                value = getpass.getpass(
+                    "Value for [%s] %s (will be encrypted) : " % (section, key)
+                )
                 value = encryption.encrypt(value, secret_key)
+            else:
+                value = input("Value for [%s] %s : " % (section, key))
         return value
 
     def handle(self, *args, **options):

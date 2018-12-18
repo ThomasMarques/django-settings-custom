@@ -86,7 +86,7 @@ Value for [DATABASE] NAME: database_name
 Value for [DATABASE] HOST: database_host
 Value for [DATABASE] PORT: 900
 Value for [DATABASE_CREDENTIALS] USER: my_user
-Value for [DATABASE_CREDENTIALS] PASSWORD (will be encrypted): my_pass
+Value for [DATABASE_CREDENTIALS] PASSWORD (will be encrypted):
 
 Writing file at /home/user/a_project/conf.ini:
 Configuration file successfully generated.
@@ -123,7 +123,7 @@ database_password = encryption.decrypt(config.get('DATABASE_CREDENTIALS', 'PASSW
 ```
 To decrypt values, the function uses the django SECRET_KEY (must be set before).
 
-## Customization
+## Miscellaneous
 
 ### If you don't want to use Django settings
 If you don't want to add specific variables to your Django settings file, you can inherit `generate_settings.Command` to specify command options :

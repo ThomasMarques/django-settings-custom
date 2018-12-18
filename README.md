@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/ThomasMarques/django-settings-custom.svg?branch=master)](https://travis-ci.org/ThomasMarques/django-settings-custom)
 [![Coverage Status](https://coveralls.io/repos/github/ThomasMarques/django-settings-custom/badge.svg)](https://coveralls.io/github/ThomasMarques/django-settings-custom)
 [![PyPI version](https://img.shields.io/pypi/v/django-settings-custom.svg)](https://pypi.org/project/django-settings-custom)
-[![Versions supported](https://img.shields.io/pypi/pyversions/django-custom-settings.svg)](https://pypi.org/project/django-settings-custom)
+[![Versions supported](https://img.shields.io/pypi/pyversions/django-settings-custom.svg)](https://pypi.org/project/django-settings-custom)
 [![Supports Wheel format](https://img.shields.io/pypi/wheel/django-settings-custom.svg)](https://pypi.org/project/django-settings-custom)
 [![Documentation Status](https://readthedocs.org/projects/django-settings-custom/badge/?version=latest)](https://django-settings-custom.readthedocs.io/en/latest/?badge=latest)
 

@@ -99,7 +99,7 @@ The command ask user to fill missing values from template:
     Value for [DATABASE] HOST: database_host
     Value for [DATABASE] PORT: 900
     Value for [DATABASE_CREDENTIALS] USER: my_user
-    Value for [DATABASE_CREDENTIALS] PASSWORD (will be encrypted): my_pass
+    Value for [DATABASE_CREDENTIALS] PASSWORD (will be encrypted):
 
     Writing file at /home/user/a_project/conf.ini:
     Configuration file successfully generated.
@@ -140,7 +140,7 @@ use ``django_settings_custom.encryption.decrypt`` :
 To decrypt values, the function uses the django SECRET\_KEY (must be set
 before).
 
-Customization
+Miscellaneous
 -------------
 
 If you don't want to use Django settings
@@ -204,6 +204,9 @@ Or a little more complex example :
                     raise CommandError('This field needs an int.')
             return value
 
+`Documentation <https://django-settings-custom.readthedocs.io/en/latest/?badge=latest>`__
+-----------------------------------------------------------------------------------------
+
 .. |License: MIT| image:: https://img.shields.io/badge/License-MIT-yellow.svg
    :target: https://opensource.org/licenses/MIT
 .. |Build Status| image:: https://travis-ci.org/ThomasMarques/django-settings-custom.svg?branch=master
@@ -212,7 +215,7 @@ Or a little more complex example :
    :target: https://coveralls.io/github/ThomasMarques/django-settings-custom
 .. |PyPI version| image:: https://img.shields.io/pypi/v/django-settings-custom.svg
    :target: https://pypi.org/project/django-settings-custom
-.. |Versions supported| image:: https://img.shields.io/pypi/pyversions/django-custom-settings.svg
+.. |Versions supported| image:: https://img.shields.io/pypi/pyversions/django-settings-custom.svg
    :target: https://pypi.org/project/django-settings-custom
 .. |Supports Wheel format| image:: https://img.shields.io/pypi/wheel/django-settings-custom.svg
    :target: https://pypi.org/project/django-settings-custom

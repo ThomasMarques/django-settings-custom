@@ -1,7 +1,10 @@
-django
+# misc
 pip
+setuptools
+wheel
+
+# app
+django
 pycrypto
 PyYAML
-setuptools
 six
-wheel

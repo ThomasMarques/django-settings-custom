@@ -5,11 +5,14 @@ import re
 
 from six.moves.configparser import ConfigParser
 
-from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 from django.core.management.utils import get_random_secret_key
 
 from django_settings_custom import encryption
+
+
+def get_input(text):
+    return input(text)
 
 
 class Command(BaseCommand):
@@ -28,19 +31,40 @@ class Command(BaseCommand):
     help = "A Django interactive command for configuration file generation."
     usage = "python manage.py generate_settings path/to/template/settings.ini target/path/of/settings.ini"
 
-    settings_template_file = (
-        settings.SETTINGS_TEMPLATE_FILE
-        if hasattr(settings, "SETTINGS_TEMPLATE_FILE")
-        else None
-    )
-    settings_file_path = (
-        settings.SETTINGS_FILE_PATH if hasattr(settings, "SETTINGS_FILE_PATH") else None
-    )
-    force_secret_key = (
-        settings.SETTINGS_FILE_PATH
-        if hasattr(settings, "SETTINGS_FORCE_SECRET_KEY")
-        else False
-    )
+    settings_template_file = None
+    settings_file_path = None
+    force_secret_key = None
+
+    def __init__(self, *argc, **kwargs):
+        super(Command, self).__init__(*argc, **kwargs)
+
+        from django.conf import settings
+        if self.settings_template_file is None:
+            self.default_settings_template_file = (
+                settings.SETTINGS_TEMPLATE_FILE
+                if hasattr(settings, "SETTINGS_TEMPLATE_FILE")
+                else None
+            )
+        else:
+            self.default_settings_template_file = self.settings_template_file
+
+        if self.settings_file_path is None:
+            self.default_settings_file_path = (
+                settings.SETTINGS_FILE_PATH
+                if hasattr(settings, "SETTINGS_FILE_PATH")
+                else None
+            )
+        else:
+            self.default_settings_file_path = self.settings_file_path
+
+        if self.force_secret_key is None:
+            self.default_force_secret_key = (
+                settings.SETTINGS_FORCE_SECRET_KEY
+                if hasattr(settings, "SETTINGS_FORCE_SECRET_KEY")
+                else False
+            )
+        else:
+            self.default_force_secret_key = False
 
     def add_arguments(self, parser):
         """
@@ -52,14 +76,14 @@ class Command(BaseCommand):
             "settings_template_file",
             nargs="?",
             type=str,
-            default=self.settings_template_file,
+            default=self.default_settings_template_file,
             help="Path to the settings template file.",
         )
         parser.add_argument(
             "settings_file_path",
             nargs="?",
             type=str,
-            default=self.settings_file_path,
+            default=self.default_settings_file_path,
             help="Target path for the settings file.",
         )
         parser.add_argument(
@@ -95,7 +119,7 @@ class Command(BaseCommand):
                 )
                 value = encryption.encrypt(value, secret_key)
             else:
-                value = input("Value for [%s] %s : " % (section, key))
+                value = get_input("Value for [%s] %s : " % (section, key))
         return value
 
     def handle(self, *args, **options):
@@ -104,7 +128,7 @@ class Command(BaseCommand):
         """
         settings_template_file = options["settings_template_file"]
         settings_file_path = options["settings_file_path"]
-        force_secret_key = options.get("force_secretkey", self.force_secret_key)
+        force_secret_key = options.get("force_secretkey", self.default_force_secret_key)
         if not settings_template_file:
             raise CommandError(
                 "Parameter settings_template_file undefined.\nUsage: %s" % self.usage
@@ -118,7 +142,7 @@ class Command(BaseCommand):
 
         self.stdout.write("** Configuration file generation: **")
         if os.path.exists(settings_file_path):
-            override = input(
+            override = get_input(
                 "A configuration file already exists at %s. "
                 "Would you override it ? (y/N) : " % settings_file_path
             )
@@ -131,12 +155,12 @@ class Command(BaseCommand):
 
         input_secret_key = False
         if not force_secret_key:
-            generate_secret_key = input(
+            generate_secret_key = get_input(
                 "Do you want to generate the secret key for Django ? (Y/n) : "
             )
             input_secret_key = generate_secret_key.upper() == "N"
         if input_secret_key:
-            secret_key = input("Enter your secret key : ")
+            secret_key = get_input("Enter your secret key : ")
             if not secret_key:
                 raise CommandError(
                     "Django secret key is needed for encryption. Generation cancelled."

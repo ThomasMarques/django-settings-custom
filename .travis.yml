@@ -32,6 +32,7 @@ matrix:
     sudo: required
 # command to install dependencies
 install:
+  - pip uninstall -r requirements/test.txt -y
   - pip install Django==$DJANGO_VERSION
   - pip install -r requirements/test.txt
 # command to run tests

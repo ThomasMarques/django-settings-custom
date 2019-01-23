@@ -32,9 +32,9 @@ matrix:
     sudo: required
 # command to install dependencies
 install:
-  - pip freeze | xargs pip uninstall -y
   - pip install Django==$DJANGO_VERSION
   - pip install -r requirements/test.txt
+  - pip install -U pytest
 # command to run tests
 script:
   - pytest --cov . --cov-report xml --junitxml results.xml

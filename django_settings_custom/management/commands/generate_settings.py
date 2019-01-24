@@ -173,8 +173,8 @@ class Command(BaseCommand):
 
         self.stdout.write("\n** Filling values for configuration file content **")
         variable_regex = re.compile(r" *{(.+)} *")
-        for section, values in config.items():
-            for key, value in values.items():
+        for section in config.sections():
+            for key, value in config.items(section):
                 match_groups = variable_regex.match(value)
                 if match_groups:
                     value_type = match_groups.group(1).strip().upper()

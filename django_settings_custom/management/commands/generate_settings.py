@@ -184,7 +184,9 @@ class Command(BaseCommand):
                         self.get_value(section, key, value_type, secret_key),
                     )
         self.stdout.write("\nWriting file at %s:" % settings_file_path)
-        os.makedirs(os.path.dirname(settings_file_path), exist_ok=True)
+        settings_directory = os.path.dirname(settings_file_path)
+        if not os.path.exists(settings_directory):
+            os.makedirs(settings_directory)
         with open(settings_file_path, "w") as config_file:
             config.write(config_file)
         self.stdout.write(

@@ -131,11 +131,11 @@ def test_generate_file_with_secretkey_entered(input_mock, getpass_mock):
     config = configparser.ConfigParser()
     config.read(created_file_path)
 
-    secret_key = config["DJANGO"]["KEY"]
+    secret_key = config.get("DJANGO", "KEY")
     assert secret_key == FakeSettings.SECRET_KEY
-    assert config["DATABASE_CREDENTIALS"]["USER"] == "user"
+    assert config.get("DATABASE_CREDENTIALS", "USER") == "user"
     assert (
-        encryption.decrypt(config["DATABASE_CREDENTIALS"]["PASSWORD"], secret_key)
+        encryption.decrypt(config.get("DATABASE_CREDENTIALS", "PASSWORD"), secret_key)
         == "pass"
     )
 

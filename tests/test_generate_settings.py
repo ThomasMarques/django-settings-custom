@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 import argparse
 import os
-from unittest import mock
 
-from six.moves import configparser
+import mock
 import pytest
+from six.moves import configparser
 
 from django.core.management.base import CommandError
 
@@ -53,10 +53,7 @@ def test_error_missing_template_path(input_mock, getpass_mock):
 @mock.patch("getpass.getpass")
 @mock.patch("django_settings_custom.management.commands.generate_settings.get_input")
 @mock.patch(
-    "django.conf.settings",
-    FakeSettings(
-        SETTINGS_TEMPLATE_FILE=template_file_path
-    ),
+    "django.conf.settings", FakeSettings(SETTINGS_TEMPLATE_FILE=template_file_path)
 )
 def test_error_missing_file_path(input_mock, getpass_mock):
     input_mock.side_effect = ["y", "y", "user"]
@@ -70,8 +67,8 @@ def test_error_missing_file_path(input_mock, getpass_mock):
 @mock.patch(
     "django.conf.settings",
     FakeSettings(
-        SETTINGS_TEMPLATE_FILE='path/not/existing.ini',
-        SETTINGS_FILE_PATH=created_file_path
+        SETTINGS_TEMPLATE_FILE="path/not/existing.ini",
+        SETTINGS_FILE_PATH=created_file_path,
     ),
 )
 def test_error_wrong_path(input_mock, getpass_mock):
@@ -86,8 +83,7 @@ def test_error_wrong_path(input_mock, getpass_mock):
 @mock.patch(
     "django.conf.settings",
     FakeSettings(
-        SETTINGS_TEMPLATE_FILE=template_file_path,
-        SETTINGS_FILE_PATH=created_file_path
+        SETTINGS_TEMPLATE_FILE=template_file_path, SETTINGS_FILE_PATH=created_file_path
     ),
 )
 def test_generate_file(input_mock, getpass_mock):
@@ -103,8 +99,7 @@ def test_generate_file(input_mock, getpass_mock):
 @mock.patch(
     "django.conf.settings",
     FakeSettings(
-        SETTINGS_TEMPLATE_FILE=template_file_path,
-        SETTINGS_FILE_PATH=created_file_path
+        SETTINGS_TEMPLATE_FILE=template_file_path, SETTINGS_FILE_PATH=created_file_path
     ),
 )
 def test_generate_file_override(input_mock, getpass_mock):
@@ -124,8 +119,7 @@ def test_generate_file_override(input_mock, getpass_mock):
 @mock.patch(
     "django.conf.settings",
     FakeSettings(
-        SETTINGS_TEMPLATE_FILE=template_file_path,
-        SETTINGS_FILE_PATH=created_file_path
+        SETTINGS_TEMPLATE_FILE=template_file_path, SETTINGS_FILE_PATH=created_file_path
     ),
 )
 def test_generate_file_with_secretkey_entered(input_mock, getpass_mock):
@@ -140,6 +134,9 @@ def test_generate_file_with_secretkey_entered(input_mock, getpass_mock):
     secret_key = config["DJANGO"]["KEY"]
     assert secret_key == FakeSettings.SECRET_KEY
     assert config["DATABASE_CREDENTIALS"]["USER"] == "user"
-    assert encryption.decrypt(config["DATABASE_CREDENTIALS"]["PASSWORD"], secret_key) == "pass"
+    assert (
+        encryption.decrypt(config["DATABASE_CREDENTIALS"]["PASSWORD"], secret_key)
+        == "pass"
+    )
 
     os.remove(created_file_path)

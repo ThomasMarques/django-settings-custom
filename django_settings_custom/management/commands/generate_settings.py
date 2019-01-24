@@ -39,6 +39,7 @@ class Command(BaseCommand):
         super(Command, self).__init__(*argc, **kwargs)
 
         from django.conf import settings
+
         if self.settings_template_file is None:
             self.default_settings_template_file = (
                 settings.SETTINGS_TEMPLATE_FILE

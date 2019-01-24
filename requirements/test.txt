@@ -1,5 +1,6 @@
 -r ./base.txt
 
+mock
 pytest
 pytest-cov
 coveralls

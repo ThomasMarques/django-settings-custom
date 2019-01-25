@@ -65,7 +65,7 @@ class Command(BaseCommand):
                 else False
             )
         else:
-            self.default_force_secret_key = False
+            self.default_force_secret_key = self.force_secret_key
 
     def add_arguments(self, parser):
         """
@@ -129,7 +129,9 @@ class Command(BaseCommand):
         """
         settings_template_file = options["settings_template_file"]
         settings_file_path = options["settings_file_path"]
-        force_secret_key = options.get("force_secretkey", self.default_force_secret_key)
+        force_secret_key = options["force_secretkey"]
+        if not force_secret_key:
+            force_secret_key = self.default_force_secret_key
         if not settings_template_file:
             raise CommandError(
                 "Parameter settings_template_file undefined.\nUsage: %s" % self.usage

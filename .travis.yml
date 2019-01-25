@@ -34,6 +34,6 @@ install:
   - pip install -U pytest
 # command to run tests
 script:
-  - pytest --cov . --cov-report xml --junitxml results.xml
+  - pytest --cov django_settings_custom --cov-report xml --junitxml results.xml
 after_success:
   - coveralls

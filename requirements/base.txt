@@ -5,6 +5,6 @@ wheel
 
 # app
 django
-pycrypto
+pycryptodome
 PyYAML
 six

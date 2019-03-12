@@ -28,7 +28,9 @@ def _compute_key(secret_key=None):
     """
     if secret_key is None:
         secret_key = settings.SECRET_KEY
-    return SHA256.new(six.b(secret_key)).digest()
+    if isinstance(secret_key, six.string_types):
+        secret_key = secret_key.encode()
+    return SHA256.new(bytearray(secret_key)).digest()
 
 
 def encrypt(source, secret_key=None):

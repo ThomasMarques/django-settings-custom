@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 import argparse
 import os
+from unittest import mock
 
-import mock
 import pytest
 from six.moves import configparser
 
@@ -96,6 +96,23 @@ def test_generate_file(input_mock, getpass_mock):
 
 @mock.patch("getpass.getpass")
 @mock.patch("django_settings_custom.management.commands.generate_settings.get_input")
+@mock.patch("django_settings_custom.encryption.decrypt")
+@mock.patch(
+    "django.conf.settings",
+    FakeSettings(
+        SETTINGS_TEMPLATE_FILE=template_file_path, SETTINGS_FILE_PATH=created_file_path
+    ),
+)
+def test_error_generate_file_not_decryptable(decrypt_mock, input_mock, getpass_mock):
+    decrypt_mock.side_effect = ValueError
+    input_mock.side_effect = ["y", "user"]
+    getpass_mock.return_value = "pass"
+    with pytest.raises(CommandError):
+        init_and_launch_command([])
+
+
+@mock.patch("getpass.getpass")
+@mock.patch("django_settings_custom.management.commands.generate_settings.get_input")
 @mock.patch(
     "django.conf.settings",
     FakeSettings(
@@ -160,7 +177,7 @@ def test_generate_file_with_secretkey_entered(input_mock, getpass_mock):
     init_and_launch_command([])
     assert os.path.exists(created_file_path)
 
-    config = configparser.ConfigParser()
+    config = configparser.RawConfigParser()
     config.read(created_file_path)
 
     secret_key = config.get("DJANGO", "KEY")
@@ -180,7 +197,9 @@ def test_generate_file_with_secretkey_entered(input_mock, getpass_mock):
 def test_generate_file_command_args(input_mock, getpass_mock):
     input_mock.side_effect = ["user"]
     getpass_mock.return_value = "pass"
-    init_and_launch_command([template_file_path, created_file_path, "--force-secretkey"])
+    init_and_launch_command(
+        [template_file_path, created_file_path, "--force-secretkey"]
+    )
     assert os.path.exists(created_file_path)
     os.remove(created_file_path)
 
@@ -189,7 +208,6 @@ def test_generate_file_command_args(input_mock, getpass_mock):
 @mock.patch("django_settings_custom.management.commands.generate_settings.get_input")
 @mock.patch("django.conf.settings", FakeSettings())
 def test_generate_file_with_subclass(input_mock, getpass_mock):
-
     class CustomCommand(generate_settings.Command):
 
         settings_template_file = template_file_path

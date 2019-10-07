@@ -3,3 +3,8 @@
 # for code formatting
 black
 isort
+
+# misc
+pip
+setuptools
+wheel

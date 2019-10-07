@@ -3,7 +3,6 @@ import pytest
 
 from django_settings_custom import encryption
 
-
 secret_key = "b(l$!na5rzuo+h(psyrlees(p9talk)u!=pjk#6=0v!n*q#y!m"
 source = "A protected sentence !"
 

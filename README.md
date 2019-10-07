@@ -117,7 +117,7 @@ And to decrypt values in your code (in settings.py for example), you may use `dj
 import configparser
 from django_settings_custom import encryption
 
-config = configparser.ConfigParser()
+config = configparser.RawConfigParser()
 config.read(SETTINGS_FILE_PATH)
 database_password = encryption.decrypt(config.get('DATABASE_CREDENTIALS', 'PASSWORD'))
 ```
@@ -146,11 +146,10 @@ from django_settings_custom.management.commands import generate_settings
 
 class Command(generate_settings.Command):
 
-    @staticmethod
-    def get_value(section, key, value_type, secret_key):
+    def get_value(self, section, key, value_type):
         if value_type == 'RANDOM_VALUE':
             return random.uniform(0, 100)
-        return super(Command, Command).get_value(section, key, value_type, secret_key)
+        return super(Command, self).get_value(section, key, value_type)
 ```
 
 Or a little more complex example :
@@ -162,12 +161,11 @@ from django_settings_custom.management.commands import generate_settings
 
 class Command(generate_settings.Command):
 
-    @staticmethod
-    def get_value(section, key, value_type, secret_key):
+    def get_value(self, section, key, value_type):
         int_less_10 = value_type == 'INT_LESS_THAN_10'
         if int_less_10:
             value_type = 'USER_VALUE'
-        value = super(Command, Command).get_value(section, key, value_type, secret_key)
+        value = super(Command, self).get_value(section, key, value_type)
         if int_less_10:
             try:
                 value = int(value)

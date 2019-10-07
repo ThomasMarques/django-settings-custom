@@ -49,11 +49,11 @@ def encrypt(source, secret_key=None):
     if isinstance(source, six.string_types):
         source = source.encode()
     key = _compute_key(secret_key)
-    iv = Random.new().read(AES.block_size)
-    cipher = AES.new(key, AES.MODE_CBC, iv)
+    iv_block = Random.new().read(AES.block_size)
+    cipher = AES.new(key, AES.MODE_CBC, iv_block)
     padding = AES.block_size - len(source) % AES.block_size
     source += bytearray([padding]) * padding
-    data = iv + cipher.encrypt(source)
+    data = iv_block + cipher.encrypt(source)
     return base64.b64encode(data).decode("latin-1")
 
 
@@ -72,8 +72,8 @@ def decrypt(source, secret_key=None):
     """
     key = _compute_key(secret_key)
     source = base64.b64decode(source.encode("latin-1"))
-    iv = source[: AES.block_size]
-    cipher = AES.new(key, AES.MODE_CBC, iv)
+    iv_block = source[: AES.block_size]
+    cipher = AES.new(key, AES.MODE_CBC, iv_block)
     data = cipher.decrypt(source[AES.block_size :]).decode("utf-8")
     padding = ord(data[-1])
     if data[-padding:] != (bytearray([padding]) * padding).decode("utf-8"):

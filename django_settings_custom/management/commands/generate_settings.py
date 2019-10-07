@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
+"""Generate settings command."""
 import getpass
 import os
 import re
 
-from six.moves.configparser import ConfigParser
+from six.moves.configparser import RawConfigParser
 
 from django.core.management.base import BaseCommand, CommandError
 from django.core.management.utils import get_random_secret_key
@@ -12,6 +13,7 @@ from django_settings_custom import encryption
 
 
 def get_input(text):
+    """Prompt text and return text write by the user."""
     return input(text)
 
 
@@ -20,7 +22,8 @@ class Command(BaseCommand):
     A Django interactive command for configuration file generation.
 
     Example:
-        python manage.py generate_settings path/to/template/settings.ini target/path/of/settings.ini'
+        python manage.py generate_settings
+        path/to/template/settings.ini target/path/of/settings.ini'
 
     Attributes:
         settings_template_file (str): Path to the settings template file.
@@ -29,7 +32,10 @@ class Command(BaseCommand):
     """
 
     help = "A Django interactive command for configuration file generation."
-    usage = "python manage.py generate_settings path/to/template/settings.ini target/path/of/settings.ini"
+    usage = (
+        "python manage.py generate_settings"
+        "path/to/template/settings.ini target/path/of/settings.ini"
+    )
 
     settings_template_file = None
     settings_file_path = None
@@ -40,6 +46,8 @@ class Command(BaseCommand):
 
         from django.conf import settings
 
+        self.django_keys = []
+        self.encrypted_field = []
         if self.settings_template_file is None:
             self.default_settings_template_file = (
                 settings.SETTINGS_TEMPLATE_FILE
@@ -94,8 +102,7 @@ class Command(BaseCommand):
             help="Generate SECRET_KEY without asking.",
         )
 
-    @staticmethod
-    def get_value(section, key, value_type, secret_key):
+    def get_value(self, section, key, value_type):
         """
         Get a value for the [section] key passed as parameter.
 
@@ -104,21 +111,20 @@ class Command(BaseCommand):
             key (str): Key in the configuration file.
             value_type (str): Value type read in template,
                 must be "DJANGO_SECRET_KEY", "USER_VALUE" or "ENCRYPTED_USER_VALUE".
-            secret_key: Django secret key
 
         Returns:
             int or str: Value for the [section] key
         """
         value = None
         if value_type == "DJANGO_SECRET_KEY":
-            value = secret_key
+            self.django_keys.append((section, key))
         elif "USER_VALUE" in value_type:
-            encrypt = value_type == "ENCRYPTED_USER_VALUE"
-            if encrypt:
+            to_encrypt = value_type == "ENCRYPTED_USER_VALUE"
+            if to_encrypt:
                 value = getpass.getpass(
                     "Value for [%s] %s (will be encrypted) : " % (section, key)
                 )
-                value = encryption.encrypt(value, secret_key)
+                self.encrypted_field.append((section, key))
             else:
                 value = get_input("Value for [%s] %s : " % (section, key))
         return value
@@ -152,11 +158,11 @@ class Command(BaseCommand):
             if override.upper() != "Y":
                 raise CommandError("Generation cancelled.")
 
-        config = ConfigParser()
-        config.optionxform = str
+        config = RawConfigParser()
         config.read(settings_template_file)
 
         input_secret_key = False
+        secret_key = None
         if not force_secret_key:
             generate_secret_key = get_input(
                 "Do you want to generate the secret key for Django ? (Y/n) : "
@@ -169,22 +175,48 @@ class Command(BaseCommand):
                     "Django secret key is needed for encryption. Generation cancelled."
                 )
         else:
-            secret_key = get_random_secret_key()
-            self.stdout.write("Django secret key generated !")
-        secret_key = secret_key.replace("%", "0")
+            self.stdout.write("Django secret key generation !")
 
         self.stdout.write("\n** Filling values for configuration file content **")
         variable_regex = re.compile(r" *{(.+)} *")
+        properties = {}
         for section in config.sections():
+            properties[section] = {}
             for key, value in config.items(section):
                 match_groups = variable_regex.match(value)
                 if match_groups:
                     value_type = match_groups.group(1).strip().upper()
-                    config.set(
-                        section,
-                        key,
-                        self.get_value(section, key, value_type, secret_key),
-                    )
+                    value = self.get_value(section, key, value_type)
+                    properties[section][key] = value
+        max_retry = 0 if input_secret_key else 3
+        retry = 0
+        encrypted_properties = properties.copy()
+        while retry <= max_retry and self.encrypted_field:
+            if secret_key is None:
+                secret_key = get_random_secret_key().replace("%", "0")
+            try:
+                for section, key in self.encrypted_field:
+                    value = encryption.encrypt(properties[section][key], secret_key)
+                    encryption.decrypt(value, secret_key)
+                    encrypted_properties[section][key] = value
+                retry = max_retry
+            except ValueError:
+                secret_key = None
+            retry += 1
+
+        if secret_key is None:
+            raise CommandError(
+                "Error while encoding / decoding passwords with the secret key."
+                "Retried %s. Generation cancelled." % max_retry
+            )
+
+        for section, key in self.django_keys:
+            encrypted_properties[section][key] = secret_key
+
+        # Fill config file
+        for section, values in encrypted_properties.items():
+            for key, value in values.items():
+                config.set(section, key, value)
         self.stdout.write("\nWriting file at %s:" % settings_file_path)
         settings_directory = os.path.dirname(settings_file_path)
         if not os.path.exists(settings_directory):

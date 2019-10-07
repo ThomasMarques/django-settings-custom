@@ -1,9 +1,3 @@
-# misc
-pip
-setuptools
-wheel
-
-# app
 django
 pycryptodome
 PyYAML

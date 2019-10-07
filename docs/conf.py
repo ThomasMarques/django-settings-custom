@@ -16,15 +16,14 @@ import datetime
 import os
 import sys
 
-from django.conf import settings
-
-import version as app_version
-
 django_settings_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 sys.path.insert(0, os.path.abspath("."))
 sys.path.insert(1, django_settings_root)
 
+import version as app_version
+
+from django.conf import settings
 
 settings.configure()
 

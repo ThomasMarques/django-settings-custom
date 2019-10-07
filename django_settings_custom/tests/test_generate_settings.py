@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
+"""Test generation settings file."""
 import argparse
 import os
-from unittest import mock
 
 import pytest
 from six.moves import configparser
@@ -11,14 +11,21 @@ from django.core.management.base import CommandError
 from django_settings_custom import encryption
 from django_settings_custom.management.commands import generate_settings
 
-resources_dir = os.path.join(os.path.dirname(__file__), "resources")
-template_file_path = os.path.join(resources_dir, "conf_template_test.ini")
-created_file_path = os.path.join(resources_dir, "conf_test.ini")
-if os.path.exists(created_file_path):
-    os.remove(created_file_path)
+try:
+    from unittest import mock
+except ImportError:
+    import mock
+
+RESOURCES_DIR = os.path.join(os.path.dirname(__file__), "resources")
+TEMPLATE_FILE_PATH = os.path.join(RESOURCES_DIR, "conf_template_test.ini")
+CREATED_FILE_PATH = os.path.join(RESOURCES_DIR, "conf_test.ini")
+if os.path.exists(CREATED_FILE_PATH):
+    os.remove(CREATED_FILE_PATH)
 
 
 class FakeSettings:
+    """Class to mock django settings."""
+
     configured = True
     DEBUG = False
     SECRET_KEY = "$lj&)_)1cc7tm3qikje-u*45mz8za^0wuf*^pm0qjs=xcwy=vo"
@@ -29,20 +36,22 @@ class FakeSettings:
 
 
 def init_and_launch_command(command_arguments, command_class=generate_settings.Command):
+    """Launch file generation as command."""
     parser = argparse.ArgumentParser()
-    c = command_class()
-    c.add_arguments(parser)
+    command = command_class()
+    command.add_arguments(parser)
     options = parser.parse_args(command_arguments)
     cmd_options = vars(options)
     # Move positional args out of options to mimic legacy optparse
     args = cmd_options.pop("args", ())
-    c.handle(*args, **cmd_options)
+    command.handle(*args, **cmd_options)
 
 
 @mock.patch("getpass.getpass")
 @mock.patch("django_settings_custom.management.commands.generate_settings.get_input")
 @mock.patch("django.conf.settings", FakeSettings())
 def test_error_missing_template_path(input_mock, getpass_mock):
+    """Test missing template"""
     input_mock.side_effect = ["y", "y", "user"]
     getpass_mock.return_value = "pass"
 
@@ -53,9 +62,10 @@ def test_error_missing_template_path(input_mock, getpass_mock):
 @mock.patch("getpass.getpass")
 @mock.patch("django_settings_custom.management.commands.generate_settings.get_input")
 @mock.patch(
-    "django.conf.settings", FakeSettings(SETTINGS_TEMPLATE_FILE=template_file_path)
+    "django.conf.settings", FakeSettings(SETTINGS_TEMPLATE_FILE=TEMPLATE_FILE_PATH)
 )
 def test_error_missing_file_path(input_mock, getpass_mock):
+    """Test missing file path."""
     input_mock.side_effect = ["y", "y", "user"]
     getpass_mock.return_value = "pass"
     with pytest.raises(CommandError):
@@ -68,10 +78,11 @@ def test_error_missing_file_path(input_mock, getpass_mock):
     "django.conf.settings",
     FakeSettings(
         SETTINGS_TEMPLATE_FILE="path/not/existing.ini",
-        SETTINGS_FILE_PATH=created_file_path,
+        SETTINGS_FILE_PATH=CREATED_FILE_PATH,
     ),
 )
 def test_error_wrong_path(input_mock, getpass_mock):
+    """Test not existing file path."""
     input_mock.side_effect = ["y", "user"]
     getpass_mock.return_value = "pass"
     with pytest.raises(CommandError):
@@ -83,15 +94,16 @@ def test_error_wrong_path(input_mock, getpass_mock):
 @mock.patch(
     "django.conf.settings",
     FakeSettings(
-        SETTINGS_TEMPLATE_FILE=template_file_path, SETTINGS_FILE_PATH=created_file_path
+        SETTINGS_TEMPLATE_FILE=TEMPLATE_FILE_PATH, SETTINGS_FILE_PATH=CREATED_FILE_PATH
     ),
 )
 def test_generate_file(input_mock, getpass_mock):
+    """Test good parameters generation."""
     input_mock.side_effect = ["y", "user"]
     getpass_mock.return_value = "pass"
     init_and_launch_command([])
-    assert os.path.exists(created_file_path)
-    os.remove(created_file_path)
+    assert os.path.exists(CREATED_FILE_PATH)
+    os.remove(CREATED_FILE_PATH)
 
 
 @mock.patch("getpass.getpass")
@@ -100,10 +112,11 @@ def test_generate_file(input_mock, getpass_mock):
 @mock.patch(
     "django.conf.settings",
     FakeSettings(
-        SETTINGS_TEMPLATE_FILE=template_file_path, SETTINGS_FILE_PATH=created_file_path
+        SETTINGS_TEMPLATE_FILE=TEMPLATE_FILE_PATH, SETTINGS_FILE_PATH=CREATED_FILE_PATH
     ),
 )
 def test_error_generate_file_not_decryptable(decrypt_mock, input_mock, getpass_mock):
+    """Test bad encryption during file generation."""
     decrypt_mock.side_effect = ValueError
     input_mock.side_effect = ["y", "user"]
     getpass_mock.return_value = "pass"
@@ -116,48 +129,50 @@ def test_error_generate_file_not_decryptable(decrypt_mock, input_mock, getpass_m
 @mock.patch(
     "django.conf.settings",
     FakeSettings(
-        SETTINGS_TEMPLATE_FILE=template_file_path, SETTINGS_FILE_PATH=created_file_path
+        SETTINGS_TEMPLATE_FILE=TEMPLATE_FILE_PATH, SETTINGS_FILE_PATH=CREATED_FILE_PATH
     ),
 )
 def test_generate_file_override(input_mock, getpass_mock):
-    f = open(created_file_path, "w")
-    f.write("An existing settings file")
-    f.close()
+    """Test good parameters generation and override existing file."""
+    created_file = open(CREATED_FILE_PATH, "w")
+    created_file.write("An existing settings file")
+    created_file.close()
     input_mock.side_effect = ["y", "y", "user"]
     getpass_mock.return_value = "pass"
 
     init_and_launch_command([])
-    assert os.path.exists(created_file_path)
-    os.remove(created_file_path)
+    assert os.path.exists(CREATED_FILE_PATH)
+    os.remove(CREATED_FILE_PATH)
 
 
 @mock.patch("django_settings_custom.management.commands.generate_settings.get_input")
 @mock.patch(
     "django.conf.settings",
     FakeSettings(
-        SETTINGS_TEMPLATE_FILE=template_file_path, SETTINGS_FILE_PATH=created_file_path
+        SETTINGS_TEMPLATE_FILE=TEMPLATE_FILE_PATH, SETTINGS_FILE_PATH=CREATED_FILE_PATH
     ),
 )
 def test_cancel_generate_file_override(input_mock):
-    f = open(created_file_path, "w")
-    f.write("An existing settings file")
-    f.close()
+    """Test cancel question."""
+    created_file = open(CREATED_FILE_PATH, "w")
+    created_file.write("An existing settings file")
+    created_file.close()
     input_mock.side_effect = ["n"]
 
     with pytest.raises(CommandError):
         init_and_launch_command([])
-    os.remove(created_file_path)
+    os.remove(CREATED_FILE_PATH)
 
 
-@mock.patch("getpass.getpass")
 @mock.patch("django_settings_custom.management.commands.generate_settings.get_input")
 @mock.patch(
     "django.conf.settings",
     FakeSettings(
-        SETTINGS_TEMPLATE_FILE=template_file_path, SETTINGS_FILE_PATH=created_file_path
+        SETTINGS_TEMPLATE_FILE=TEMPLATE_FILE_PATH, SETTINGS_FILE_PATH=CREATED_FILE_PATH
     ),
 )
-def test_error_generate_file_with_secretkey_entered(input_mock, getpass_mock):
+def test_error_generate_file_with_secretkey_entered(input_mock):
+    """Test empty secret key"""
     input_mock.side_effect = ["n", ""]
     with pytest.raises(CommandError):
         init_and_launch_command([])
@@ -168,17 +183,18 @@ def test_error_generate_file_with_secretkey_entered(input_mock, getpass_mock):
 @mock.patch(
     "django.conf.settings",
     FakeSettings(
-        SETTINGS_TEMPLATE_FILE=template_file_path, SETTINGS_FILE_PATH=created_file_path
+        SETTINGS_TEMPLATE_FILE=TEMPLATE_FILE_PATH, SETTINGS_FILE_PATH=CREATED_FILE_PATH
     ),
 )
 def test_generate_file_with_secretkey_entered(input_mock, getpass_mock):
+    """Test with user secret key."""
     input_mock.side_effect = ["n", FakeSettings.SECRET_KEY, "user"]
     getpass_mock.return_value = "pass"
     init_and_launch_command([])
-    assert os.path.exists(created_file_path)
+    assert os.path.exists(CREATED_FILE_PATH)
 
     config = configparser.RawConfigParser()
-    config.read(created_file_path)
+    config.read(CREATED_FILE_PATH)
 
     secret_key = config.get("DJANGO", "KEY")
     assert secret_key == FakeSettings.SECRET_KEY
@@ -188,34 +204,38 @@ def test_generate_file_with_secretkey_entered(input_mock, getpass_mock):
         == "pass"
     )
 
-    os.remove(created_file_path)
+    os.remove(CREATED_FILE_PATH)
 
 
 @mock.patch("getpass.getpass")
 @mock.patch("django_settings_custom.management.commands.generate_settings.get_input")
 @mock.patch("django.conf.settings", FakeSettings())
 def test_generate_file_command_args(input_mock, getpass_mock):
+    """Test force-secretkey option."""
     input_mock.side_effect = ["user"]
     getpass_mock.return_value = "pass"
     init_and_launch_command(
-        [template_file_path, created_file_path, "--force-secretkey"]
+        [TEMPLATE_FILE_PATH, CREATED_FILE_PATH, "--force-secretkey"]
     )
-    assert os.path.exists(created_file_path)
-    os.remove(created_file_path)
+    assert os.path.exists(CREATED_FILE_PATH)
+    os.remove(CREATED_FILE_PATH)
 
 
 @mock.patch("getpass.getpass")
 @mock.patch("django_settings_custom.management.commands.generate_settings.get_input")
 @mock.patch("django.conf.settings", FakeSettings())
 def test_generate_file_with_subclass(input_mock, getpass_mock):
-    class CustomCommand(generate_settings.Command):
+    """Test inheritance."""
 
-        settings_template_file = template_file_path
-        settings_file_path = created_file_path
+    class CustomCommand(generate_settings.Command):
+        """Custom test class to specify settings."""
+
+        settings_template_file = TEMPLATE_FILE_PATH
+        settings_file_path = CREATED_FILE_PATH
         force_secret_key = True
 
     input_mock.side_effect = ["user"]
     getpass_mock.return_value = "pass"
     init_and_launch_command([], CustomCommand)
-    assert os.path.exists(created_file_path)
-    os.remove(created_file_path)
+    assert os.path.exists(CREATED_FILE_PATH)
+    os.remove(CREATED_FILE_PATH)

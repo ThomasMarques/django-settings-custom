@@ -1,6 +1,6 @@
 -r ./base.txt
 
-mock
+mock;python_version<="2.7"
 pytest
 pytest-cov
 coveralls

@@ -13,7 +13,7 @@ except ImportError:  # for pip <= 9.0.3
 
 def get_version_info():
     """Get version from the version.py file"""
-    from version import __version__
+    from django_settings_custom.version import __version__
 
     return __version__
 

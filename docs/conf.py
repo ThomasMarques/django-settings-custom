@@ -21,7 +21,7 @@ django_settings_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 sys.path.insert(0, os.path.abspath("."))
 sys.path.insert(1, django_settings_root)
 
-import version as app_version
+from django_settings_custom import version as app_version
 
 from django.conf import settings
 
